@@ -73,7 +73,7 @@ class AccountVerificationSerializer(serializers.Serializer):
         payload = self.context['payload']
         username = payload['user']
 
-        user = User.objects.get(username)
+        user = User.objects.get(username=username)
         user.is_verified = True
         user.save()
 
@@ -191,7 +191,7 @@ class UserSignupSerializer(serializers.Serializer):
             algorithm='HS256',
         )
 
-        return token.decode()
+        return token
 
 
 class UserModelSerializer(serializers.ModelSerializer):
