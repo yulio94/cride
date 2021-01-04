@@ -34,6 +34,8 @@ django-redis = "*"
 # Production
 gunicorn = "*"
 celery = "==4.4.6"
+#pyJWT
+pyjwt = "*"
 
 [requires]
 python_version = "3.8"
