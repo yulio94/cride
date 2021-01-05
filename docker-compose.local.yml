@@ -27,6 +27,8 @@ services:
       - local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/postgresql.env
+    ports:
+      - 5432:5432
 
   redis:
     image: redis:6.0.9-alpine
