@@ -2,7 +2,10 @@
 
 # Django REST framework
 from rest_framework import viewsets, mixins
+
+# Permissions
 from rest_framework.permissions import IsAuthenticated
+from cride.circles.permissions import IsCircleAdmin
 
 # Models
 from cride.circles.models import Circle
@@ -23,7 +26,6 @@ class CircleViewSet(mixins.CreateModelMixin,
     Circle view set
     """
     serializer_class = CircleModelSerializer
-    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         """
@@ -53,3 +55,16 @@ class CircleViewSet(mixins.CreateModelMixin,
             self.request
         )
         use_case.execute()
+
+    def get_permissions(self):
+        """
+        Assign permissions based on action.
+
+        :return:
+        """
+        permissions = [IsAuthenticated]
+
+        if self.action in ['update', 'partial_update']:
+            permissions.append(IsCircleAdmin)
+
+        return [permission() for permission in permissions]
