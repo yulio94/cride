@@ -4,7 +4,7 @@
 from rest_framework.permissions import BasePermission
 
 # Models
-from cride.circles.models import Circle, Membership
+from cride.circles.models import Membership
 
 
 class IsCircleAdmin(BasePermission):
