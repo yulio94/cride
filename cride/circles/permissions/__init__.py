@@ -1,1 +1,1 @@
-from cride.circles.permissions.circles import IsCircleAdmin
+from cride.circles.permissions.is_circle_admin import IsCircleAdmin
