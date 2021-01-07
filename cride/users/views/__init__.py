@@ -1,1 +1,1 @@
-from cride.users.views.users import (UserLoginAPIView, UserSignupAPIView, AccountVerificationAPIView)
+from cride.users.views.users import (UserViewSet)
