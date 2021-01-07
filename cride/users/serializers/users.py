@@ -16,6 +16,8 @@ from django.conf import settings
 # Models
 from cride.users.models import User, Profile
 
+# Serializers
+from cride.users.serializers.profiles import ProfileModelSerializer
 # Utilities
 from datetime import timedelta
 import jwt
@@ -142,10 +144,10 @@ class UserSignupSerializer(serializers.Serializer):
         :return:
         """
         validated_data.pop('password_confirmation')
-        user = User.objects.create_user(
-            **validated_data,
-            is_verified=False,
-        )
+        user = User.objects.create_user(**validated_data,
+                                        is_verified=False,
+                                        is_client=True,
+                                        )
         self.send_confirmation_email(user)
         Profile.objects.create(
             user=user
@@ -199,6 +201,8 @@ class UserModelSerializer(serializers.ModelSerializer):
     User model serializer
     """
 
+    profile = ProfileModelSerializer(read_only=True)
+
     class Meta:
         """Meta class."""
         model = User
@@ -208,6 +212,7 @@ class UserModelSerializer(serializers.ModelSerializer):
             'last_name',
             'email',
             'phone_number',
+            'profile'
         )
 
 
