@@ -38,4 +38,4 @@ celery = "==4.4.6"
 pyjwt = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
