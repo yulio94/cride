@@ -7,7 +7,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 # Views
- from cride.circles.views import CircleViewSet, MembershipViewSet
+from cride.circles.views import CircleViewSet, MembershipViewSet
 
 router = DefaultRouter()
 router.register(r'circles', CircleViewSet, basename='circle')
