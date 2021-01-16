@@ -16,6 +16,10 @@ from cride.circles.usecases.create_circle import CreateCircleUseCase
 # Serializers
 from cride.circles.serializers import CircleModelSerializer
 
+ # Filters
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 class CircleViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
@@ -27,6 +31,17 @@ class CircleViewSet(mixins.CreateModelMixin,
     """
     serializer_class = CircleModelSerializer
     lookup_field = 'slug_name'
+
+    # Filters
+    filter_backends = (SearchFilter, OrderingFilter, DjangoFilterBackend)
+    filter_fields = ('verified', 'is_limited')
+
+    # Search fields
+    search_fields = ('slug_name', 'name')
+
+    # ordering
+    ordering_fields = ('rides_offered', 'rides_taken', 'name', 'created', 'member_limit')
+    ordering = ('-members__count', '-rides_offered', '-rides_taken')
 
     def get_queryset(self):
         """
