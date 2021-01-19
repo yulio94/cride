@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 # Serializers
-from cride.rides.serializers import (CreateRideSerializer, RideModelSerializer, JoinRideSerializer)
+from cride.rides.serializers import (CreateRideSerializer, RideModelSerializer, JoinRideSerializer, EndRideSerializer)
 
 # Filters
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -28,6 +28,7 @@ from datetime import timedelta
 class RideViewSet(mixins.ListModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
                   viewsets.GenericViewSet):
     """Ride view set."""
 
@@ -51,7 +52,7 @@ class RideViewSet(mixins.ListModelMixin,
     def get_permissions(self):
         """Assign permission based on action"""
         permissions = [IsAuthenticated, IsActiveCircleMember]
-        if self.action in ['update', 'partial_update']:
+        if self.action in ['update', 'partial_update' 'finish']:
             permissions.append(IsRideOwner)
         if self.action in ['join']:
             permissions.append(IsNotRideOwner)
@@ -63,6 +64,8 @@ class RideViewSet(mixins.ListModelMixin,
             return CreateRideSerializer
         if self.action == 'update':
             return JoinRideSerializer
+        if self.action == 'finish':
+            return EndRideSerializer
         return RideModelSerializer
 
     def get_serializer_context(self):
@@ -73,22 +76,37 @@ class RideViewSet(mixins.ListModelMixin,
 
     def get_queryset(self):
         """Return active circle rides"""
-        offset = timezone.now() + timedelta(minutes=10)
-        return self.circle.ride_set.filter(departure_date__gte=offset,
-                                           available_seats_gte=1)
+        if self.action not in ['finish']:
+            offset = timezone.now() + timedelta(minutes=10)
+            return self.circle.ride_set.filter(departure_date__gte=offset,
+                                               available_seats_gte=1)
+        return self.circle.ride_set.all()
 
     @action(detail=True, methods=['POST'])
     def join(self, request, *args, **kwargs):
         """Add requesting user to ride."""
         ride = self.get_object()
-        serializer = self.get_serializer_class()
+        serializer = self.get_serializer()
         serializer(ride,
                    data={'passenger': request.user.pk},
-                   context={'ride': ride, 'circle': self.circle},
+                   context={'ride': ride, **self.get_serializer_context()},
                    partial=True)
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        data = RideModelSerializer(ride).data
+        return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['POST'])
+    def finish(self, request, *args, **kwargs):
+        """Call by owners to finish a ride."""
+        ride = self.get_object()
+        serializer = self.get_serializer()
+        serializer(ride,
+                   data={'is_active': False, 'current_time': timezone.now()},
+                   partial=True)
+        serializer.is_valid(raise_exception=True)
+        ride = serializer.save()
         data = RideModelSerializer(ride).data
         return Response(data, status=status.HTTP_200_OK)
