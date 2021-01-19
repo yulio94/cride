@@ -17,4 +17,4 @@ class IsNotRideOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         """Verify requesting user isn't the ride creator."""
-        return request.user != obj.offered_by
+        return not request.user == obj.offered_by
