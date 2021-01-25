@@ -1,0 +1,1 @@
+from cride.rides.serializers.rides import *
