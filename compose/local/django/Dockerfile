@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM python:3.9-alpine
 
 ENV PYTHONUNBUFFERED 1
 
@@ -21,8 +21,10 @@ RUN pip install pipenv
 # Requirements are installed here to ensure they will be cached.
 COPY ["Pipfile", "Pipfile.lock", "./"]
 
+RUN ls
+
 # Install project dependencies
-RUN pipenv install --system
+RUN pipenv install --dev --system
 
 
 COPY ./compose/local/django/entrypoint /entrypoint
@@ -46,5 +48,7 @@ RUN sed -i 's/\r//' /start-flower
 RUN chmod +x /start-flower
 
 WORKDIR /app
+
+RUN pip freeze
 
 ENTRYPOINT ["/entrypoint"]
